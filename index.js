@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const courses = require("./courses.json");
@@ -7,10 +6,10 @@ const session = require("express-session");
 const path = require("path");
 
 var connection = mysql.createConnection({
-    host:process.env.HOST,
-    user: process.env.USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE
+    host:"localhost",
+    user: "root",
+    password: "khush2001@25",
+    database: "userdb",
 });
 
 connection.connect((err) => {
@@ -18,7 +17,7 @@ connection.connect((err) => {
         console.log("DB connection successfull !!");
     }
     else {
-        console.log("DB connection failed");
+        console.log(err);
     }
 });
 
@@ -26,7 +25,7 @@ const app = express();
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(session({
-    secret: process.env.SECRET,
+    secret: "its a secret",
     resave: true,
     saveUninitialized: true
 }));
@@ -122,7 +121,7 @@ app.get("/python",(req, res)=>{
 
 app.post("/dashboard", (req, res) => {
     var id = req.query.id;
-    var name = courses[id - 1].name;
+    var name = [id - 1].name;
     var src = courses[id-1].src;
     var email = req.session.email;
 
@@ -153,11 +152,11 @@ app.post("/forgotPassword",(req, res)=>{
     var email = req.body.email;
     var password = req.body.password;
     var confirmPass = req.body.confirmPass;
-    mysqlConnection.query("SELECT * FROM accounts WHERE email=?",[email],(err,results,field)=>{
+    mysqlConnection.query("SELECT * FROM userprofile WHERE email=?",[email],(err,results,field)=>{
         if(!err){
             if(results.length>0){
                 if(password==confirmPass){
-                    mysqlConnection.query("UPDATE Users SET password = ? WHERE email = ?",[hash,email],(err,results,fiels)=>{
+                    mysqlConnection.query("UPDATE userprofile SET password = ? WHERE email = ?",[hash,email],(err,results,fiels)=>{
                         if(!err){
                             res.render("login",{message:"Password is set successfully. Login again"});
                             console.log("Password set successfully !!");
@@ -181,10 +180,12 @@ app.post("/forgotPassword",(req, res)=>{
 });
 
 app.post("/register", (req, res) => {
+    var firstname = req.body.firstname;
+    var lastname = req.body.lastname;
     var email = req.body.email;
     var password = req.body.password;
     if (email && password) {
-        connection.query("INSERT INTO accounts(email,password) VALUES (?,?)", [email, password], (err, result, fields) => {
+        connection.query("INSERT INTO userprofile(firstname, lastname, email, password) VALUES (?,?,?,?)", [email, password], (err, result, fields) => {
             if (!err) {
                 req.session.loggedin = true;
                 req.session.email = email;
@@ -206,7 +207,7 @@ app.post("/login", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
     if (email && password) {
-        connection.query("SELECT * FROM accounts WHERE email=? AND password=?", [email, password], (err, result, fields) => {
+        connection.query("SELECT * FROM userprofile WHERE email=? AND password=?", [email, password], (err, result, fields) => {
             if (!err) {
                 if (result.length > 0) {
                     req.session.loggedin = true;

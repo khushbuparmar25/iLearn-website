@@ -145,6 +145,7 @@ body{
 
 .options{
     cursor: pointer;
+    color:white !important;
 }
 
 .page-footer{

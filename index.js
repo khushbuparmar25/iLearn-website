@@ -8,7 +8,7 @@ const path = require("path");
 var connection = mysql.createConnection({
     host:"localhost",
     user: "root",
-    password: "khush2001@25",
+    password: "",
     database: "userdb",
 });
 
@@ -185,15 +185,15 @@ app.post("/register", (req, res) => {
     var email = req.body.email;
     var password = req.body.password;
     if (email && password) {
-        connection.query("INSERT INTO userprofile(firstname, lastname, email, password) VALUES (?,?,?,?)", [email, password], (err, result, fields) => {
+        connection.query("INSERT INTO userprofile(firstname, lastname, email, password) VALUES (?,?,?,?)", [firstname, lastname, email, password], (err, result, fields) => {
             if (!err) {
                 req.session.loggedin = true;
                 req.session.email = email;
-                res.redirect("/dashboard");
+                res.redirect("/login");
             }
             else {
                 message = "User not registered. Try Again";
-                res.redirect("/");
+                res.redirect("/register");
             }
         })
     }
